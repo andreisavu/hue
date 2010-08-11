@@ -14,13 +14,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from django.conf.urls.defaults import patterns, url
+from zkui import settings
 
-urlpatterns = patterns('zkui',
-  url(r'^$', 'views.index'),
-  url(r'view/(?P<id>\d+)$', 'views.view'),
-  url(r'clients/(?P<host>.+)$', 'views.clients'),
-  url(r'tree/(?P<id>\d+)(?P<path>.+)$', 'views.tree'),
-  url(r'create/(?P<id>\d+)(?P<path>.*)$', 'views.create'),
-  url(r'delete/(?P<id>\d+)(?P<path>.*)$', 'views.delete')
-)
+from django.http import Http404
+
+def get_cluster_or_404(id):
+  try:
+    id = int(id)
+    if not (0 <= id < len(settings.CLUSTERS)):
+      raise ValueError, 'Undefined cluster id.'
+  except (TypeError, ValueError):
+    raise Http404()
+
+  cluster = settings.CLUSTERS[id]
+  cluster['id'] = id
+
+  return cluster
+

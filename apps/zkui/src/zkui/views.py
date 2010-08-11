@@ -20,6 +20,7 @@ from django.http import Http404
 from zkui import settings
 from zkui.stats import ZooKeeperStats
 from zkui.rest import ZooKeeper
+from zkui.utils import get_cluster_or_404
 
 def _get_global_overview():
   overview = []
@@ -57,16 +58,9 @@ def index(request):
     dict(overview=overview))
 
 def view(request, id):
-  try:
-    id = int(id)
-    if not (0 <= id < len(settings.CLUSTERS)):
-      raise ValueError
-  except (TypeError, ValueError):
-    raise Http404()
+  cluster = get_cluster_or_404(id)
 
-  cluster = _get_overview(settings.CLUSTERS[id])
-  cluster['id'] = id
-
+  cluster = _get_overview(cluster)
   leader, followers = _group_stats_by_role(cluster)
 
   return render('view.mako', request, 
@@ -85,15 +79,9 @@ def clients(request, host):
     dict(host=host, port=port, clients=clients))
 
 def tree(request, id, path):
-  try:
-    id = int(id)
-  except (TypeError, ValueError):
-    raise Http404
-
-  cluster = settings.CLUSTERS[id]
-  cluster['id'] = id
-
+  cluster = get_cluster_or_404(id)
   zk = ZooKeeper(cluster['rest_gateway'])
+
   znode = zk.get(path)
   children = sorted(zk.get_children_paths(path))
   
@@ -101,16 +89,8 @@ def tree(request, id, path):
     dict(cluster=cluster, path=path, \
       znode=znode, children=children))
 
-
 def delete(request, id, path):
-  try:
-    id = int(id)
-  except (TypeError, ValueError):
-    raise Http404
-
-  cluster = settings.CLUSTERS[id]
-  cluster['id'] = id
-
+  cluster = get_cluster_or_404(id)
   if request.method == 'POST':
     zk = ZooKeeper(cluster['rest_gateway'])
     try:
@@ -119,4 +99,12 @@ def delete(request, id, path):
       pass
 
   return tree(request, id, path[:path.rindex('/')])
+
+def create(request, id, path):
+  cluster = get_cluster_or_404(id)
+  if request.method == 'POST':
+    zk = ZooKeeper(cluster['rest_gateway'])
+    pass
+  return render('create.mako', request, dict(path=path))
+
 

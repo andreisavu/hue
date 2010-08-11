@@ -20,7 +20,12 @@ ${shared.header("ZooKeeper Browser > Tree > %s > %s" % (cluster['nice_name'], pa
     </td></tr>
   % endfor
 </table>
-<br /><br />
+<br />
+<span style="float: right">
+  ${shared.info_button(url('zkui.views.create', id=cluster['id'], path=path), 'Create New')}
+</span>
+
+<div style="clear: both"></div>
 
 <h2>data :: base64 :: length :: ${znode.get('dataLength', 0)}</h2>
 <br />
