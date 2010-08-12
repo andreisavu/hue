@@ -30,8 +30,14 @@ ${shared.header("ZooKeeper Browser > Tree > %s > %s" % (cluster['nice_name'], pa
 <h2>data :: base64 :: length :: ${znode.get('dataLength', 0)}</h2>
 <br />
 
-<textarea style="width: 100%;" rows="5">${znode.get('data64', '')}</textarea>
-<br /><br />
+<textarea name="data64" style="width: 100%;" rows="5">${znode.get('data64', '')}</textarea>
+<div style="clear: both"></div>
+<span style="float: right">
+  ${shared.info_button('', 'Save')}
+  ${shared.info_button('', 'Overwrite')}
+</span>
+<div style="clear: both"></div>
+<br />
 
 <h2>stat information</h2>
 <br />
