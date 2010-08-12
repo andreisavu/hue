@@ -100,9 +100,9 @@ CCS.JFrame = new Class({
 		//the selector to match clicks against for delegation; defaults to only links
 		clickRelays: 'a',
 		//given the response and response text, this method determines if there's been a serverside error
-		errorDetector: function(requestInstance, repsonseText) {
+		errorDetector: function(requestInstance, responseText) {
 			//flag this as an error
-			return repsonseText.contains('ccs-error-popup');
+			return responseText.contains('ccs-error-popup');
 		},
 		getScroller: function(){
 			return this.element;
@@ -168,12 +168,25 @@ CCS.JFrame = new Class({
 		this.element = this.element || new Element('div').setStyles({display: 'block', position: 'relative', outline: 'none'}).store('widget', this);
 	},
 
+	delegatedTo: [],
+
+/*
+	
+	the JFrame callClick event invokes the click handler for links/elements, matching against any JFrameLinkers and, 
+	if none are found, running the default click handler (which is to load the link's href, if defined, into the JFrame).
+	event - (*object*) the event object that was fired; a click, usually
+	link - (*element*) typically an anchor tag, though that's not a requirement
+	force - (*boolean*) forces the link to be activated even if it has the css class .disabled or .jframe_ignore
+	callClick: function(event, link, force) {
+		//this function is defined in the applyDelegates function below;
+		//this commented out version added here for visibility's sake
+	},
+
+*/
 	/*
 		applies the default link handling delegates to a specific target, allowing you to attach link handling to any container
 		target - (*element*) the element to which you wish to attach delegates
 	*/
-	delegatedTo: [],
-	
 	applyDelegates: function(target){
 		target = document.id(target) || this.content;
 		//make sure we only apply this once per target
@@ -201,11 +214,11 @@ CCS.JFrame = new Class({
 
 			}
 		}.bind(this);
-		this.callClick = function(e, elem){
+		this.callClick = function(e, elem, force){
 			//allow links to force jframe to nerf them
 			//this is required for doubleclick support
 			//as otherwise there's no way to prevent this default jframe handler per link
-			if (elem.hasClass('jframe_ignore') || elem.hasClass('disabled')) return e.preventDefault();
+			if (!force && (elem.hasClass('jframe_ignore') || elem.hasClass('disabled'))) return e.preventDefault();
 			// Fix relative links
 			if (elem.get('href')) {
 				var url = new URI(elem.get('href'), {base: this.currentPath});
@@ -345,7 +358,6 @@ CCS.JFrame = new Class({
 			content.viewElement = viewElement;
 		}
 		this._applyRenderers(content, options);
-
 	},
 
 	/*
@@ -636,6 +648,7 @@ CCS.JFrame = new Class({
 			spinnerTarget: this.options.spinnerTarget || this.element,
 			spinnerOptions: { fxOptions: {duration: 200} },
 			onFailure: this.error.bind(this),
+			evalScripts: false,
 			onRequest: function(){
 				if (this._request) this._request.cancel();
 				this._request = request;
@@ -663,7 +676,7 @@ CCS.JFrame = new Class({
 	_requestSuccessHandler: function(request, html, options) {
 		var error, blankWindowWithError;
 		if (this._checkForEmptyErrorState(request, html)) {
-			serverSideError = true;
+			error = true;
 			if (!this.loadedOnce) blankWindowWithError = true;
 		}
 		var responsePath = request.getHeader('X-Hue-JFrame-Path');
