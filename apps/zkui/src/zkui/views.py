@@ -95,7 +95,7 @@ def delete(request, id, path):
   if request.method == 'POST':
     zk = ZooKeeper(cluster['rest_gateway'])
     try:
-      zk.delete(path)
+      zk.recursive_delete(path)
     except ZooKeeper.NotFound:
       pass
 

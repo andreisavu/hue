@@ -154,6 +154,13 @@ class ZooKeeper(object):
                 raise ZooKeeper.NotFound(path)
             raise
 
+    def recursive_delete(self, path):
+        """ Delete all the nodes from the tree """
+        for child in self.get_children_paths(path):
+            fp = ("%s/%s" % (path, child)).replace('//', '/')
+            self.recursive_delete(fp)
+        self.delete(path)
+
     def exists(self, path):
         """ Do a znode exists """
         try:
