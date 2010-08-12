@@ -2,15 +2,16 @@
 
 ${shared.header("ZooKeeper Browser > Create Znode")}
 
-<h2>Create New Znode</h2>
+<h2>Create New Znode :: ${path}</h2>
 <hr /><br />
 
-<form action="" method="POST">
-  <label>Parent Path:</label>
-  <input type="text" name="parent" value="${path}" />
-
-
-  <button type="submit">Create</button> 
+<form class="createZnodeForm" action="" method="POST">
+<table align="center">
+  ${form.as_table()|n}
+<tr><td colspan="2" align="right">
+  <button type="submit">Create</button>
+</td></tr>
+</table>
 </form>
 
 ${shared.footer()}

@@ -14,4 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from django import forms
+from django.forms.widgets import Textarea
+
+class CreateZNodeForm(forms.Form):
+  name = forms.CharField(max_length=64)
+  data = forms.CharField(required=False, widget=Textarea)
+  sequence = forms.BooleanField(required=False)
+
 

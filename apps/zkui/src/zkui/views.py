@@ -21,6 +21,7 @@ from zkui import settings
 from zkui.stats import ZooKeeperStats
 from zkui.rest import ZooKeeper
 from zkui.utils import get_cluster_or_404
+from zkui.forms import CreateZNodeForm
 
 def _get_global_overview():
   overview = []
@@ -98,13 +99,27 @@ def delete(request, id, path):
     except ZooKeeper.NotFound:
       pass
 
-  return tree(request, id, path[:path.rindex('/')])
+  return tree(request, id, path[:path.rindex('/')] or '/')
 
 def create(request, id, path):
   cluster = get_cluster_or_404(id)
+
   if request.method == 'POST':
-    zk = ZooKeeper(cluster['rest_gateway'])
-    pass
-  return render('create.mako', request, dict(path=path))
+    form = CreateZNodeForm(request.POST)
+    if form.is_valid():
+      zk = ZooKeeper(cluster['rest_gateway'])
+
+      full_path = ("%s/%s" % (path, form.cleaned_data['name']))\
+        .replace('//', '/')
+
+      zk.create(full_path, \
+        form.cleaned_data['data'], \
+        sequence = form.cleaned_data['sequence'])
+      return tree(request, id, path)
+  else:
+    form = CreateZNodeForm()
+
+  return render('create.mako', request, 
+    dict(path=path, form=form))
 
 
