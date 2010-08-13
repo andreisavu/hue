@@ -15,6 +15,7 @@
 # limitations under the License.
 
 DJANGO_APPS = [ "zkui" ]
+NICE_NAME = "ZooKeeper Browser"
 REQUIRES_HADOOP = False
 
 CLUSTERS = [{
