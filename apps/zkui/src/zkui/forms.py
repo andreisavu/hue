@@ -15,11 +15,15 @@
 # limitations under the License.
 
 from django import forms
-from django.forms.widgets import Textarea
+from django.forms.widgets import Textarea, HiddenInput
 
 class CreateZNodeForm(forms.Form):
   name = forms.CharField(max_length=64)
   data = forms.CharField(required=False, widget=Textarea)
   sequence = forms.BooleanField(required=False)
 
+class EditZNodeForm(forms.Form):
+  data = forms.CharField(required=False, widget=Textarea)
+  version = forms.IntegerField(required=False, widget=HiddenInput)
+  
 

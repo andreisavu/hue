@@ -22,5 +22,7 @@ urlpatterns = patterns('zkui',
   url(r'clients/(?P<host>.+)$', 'views.clients'),
   url(r'tree/(?P<id>\d+)(?P<path>.+)$', 'views.tree'),
   url(r'create/(?P<id>\d+)(?P<path>.*)$', 'views.create'),
-  url(r'delete/(?P<id>\d+)(?P<path>.*)$', 'views.delete')
+  url(r'delete/(?P<id>\d+)(?P<path>.*)$', 'views.delete'),
+  url(r'edit/base64/(?P<id>\d+)(?P<path>.*)$', 'views.edit_as_base64'),
+  url(r'edit/text/(?P<id>\d+)(?P<path>.*)$', 'views.edit_as_text')
 )

@@ -21,7 +21,7 @@ from zkui import settings
 from zkui.stats import ZooKeeperStats
 from zkui.rest import ZooKeeper
 from zkui.utils import get_cluster_or_404
-from zkui.forms import CreateZNodeForm
+from zkui.forms import CreateZNodeForm, EditZNodeForm
 
 def _get_global_overview():
   overview = []
@@ -120,6 +120,46 @@ def create(request, id, path):
     form = CreateZNodeForm()
 
   return render('create.mako', request, 
+    dict(path=path, form=form))
+
+def edit_as_base64(request, id, path):
+  cluster = get_cluster_or_404(id)
+  zk = ZooKeeper(cluster['rest_gateway'])
+  node = zk.get(path)
+
+  if request.method == 'POST':
+    form = EditZNodeForm(request.POST)
+    if form.is_valid():
+      # TODO is valid base64 string?
+      data = form.cleaned_data['data'].decode('base64')
+      zk.set(path, data, form.cleaned_data['version'])
+
+    return tree(request, id, path)
+  else:
+    form = EditZNodeForm(dict(\
+      data=node.get('data64', ''), 
+      version=node.get('version', '-1')))
+
+  return render('edit.mako', request,
+    dict(path=path, form=form))
+
+def edit_as_text(request, id, path):
+  cluster = get_cluster_or_404(id)
+  zk = ZooKeeper(cluster['rest_gateway'])
+  node = zk.get(path)
+
+  if request.method == 'POST':
+    form = EditZNodeForm(request.POST)
+    if form.is_valid():
+      zk.set(path, form.cleaned_data['data'])
+
+    return tree(request, id, path)
+  else:
+    form = EditZNodeForm(dict(data=node.get('data64', '')\
+      .decode('base64').strip(), 
+      version=node.get('version', '-1')))
+
+  return render('edit.mako', request,
     dict(path=path, form=form))
 
 

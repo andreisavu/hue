@@ -55,7 +55,8 @@ div.zkui td a.delete {
 //  background: url(/zkui/static/art/line_icons.png) no-repeat 0 -70px;
 }
 
-div.zkui .createZnodeForm td {
+div.zkui .createZnodeForm td,
+div.zkui .editZnodeForm td {
   padding: 5px;
 }
 
