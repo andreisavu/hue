@@ -24,36 +24,22 @@ script: CCS.JFrame.AutoRefresh.js
 */
 
 (function(){
-var metaRE = /<meta(.*)?\/>/;  //regular expression to remove all but attributes
-var removeQuotes = /"/g; //regular expression to remove quotes
-
+var urlRE = /^url=/;
 
 CCS.JFrame.addGlobalFilters({
 
 	autorefresh: function(container, content){
 		$clear(refreshTable.get(this));
-		//get the first input.autorefresh and use its value as the duration before 
+		//get the first input.autorefresh and use its value as the duration before
 		//it auto refreshes the input. if span.sec_to_autorefresh is present, fill its
 		//contents with the number of seconds until a refresh.
-                if (content && content.meta) {
+		if (content && content.meta) {
 			var sec, url;
-                        			content.meta.each(function(meta) {
-			        var match = metaRE.exec(meta);
-                                if(match[1]) {
-                                         var data = match[1]; //set data to string of html attributes, space separated
-                                } else {
-                                         return;
-                                }  
-                                data = data.trim().split(' ');
-                                var attributeMap = new Object;
-                                data.each(function(item) {
-                                        var attribute = item.split('=');
-                                        attributeMap[attribute[0].replace(removeQuotes, '')] = attribute[1].replace(removeQuotes, ''); // remove quotes within string
-                                }); 
-                                var parts = attributeMap['content'].split(';');
-				if (attributeMap['http-equiv'] == "refresh") {
-					sec = parts[0];
-					if (parts[1]) url = unescape(parts[1].replace('url=', ''));
+			content.meta.each(function(meta) {
+				var parts = meta.get('content').split(';');
+				if(meta.get('http-equiv') == "refresh") {
+					sec = parts[0].toInt();
+					if (parts[1]) url = unescape(parts[1].replace(urlRE, ''));
 				}
 			}, this);
 			if (!sec) return;
@@ -77,9 +63,9 @@ CCS.JFrame.addGlobalFilters({
 					update();
 				}
 			}).periodical(250, this);
-			
+
 			refreshTable.set(this, timer);
-			
+
 			var clearer = function(){
 				$clear(timer);
 				this.removeEvent('request', clearer);
